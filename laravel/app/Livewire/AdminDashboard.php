@@ -12,8 +12,7 @@ class AdminDashboard extends Component
 {
     public $totalUsers;
     public $activeShops;
-    public $pendingSubscriptions;
-
+    public $pendingSubscriptionsCount;
     public $chartLabels = [];
     public $usersChartData = [];
     public $shopsChartData = [];
@@ -28,8 +27,23 @@ class AdminDashboard extends Component
     {
         $this->totalUsers = User::count();
         $this->activeShops = Page::where('is_ecommerce_active', true)->count();
-        // Remplacement temporaire pour les abonnements
-        $this->pendingSubscriptions = DB::table('subscriptions')->where('status', 'pending')->count();
+        
+        try {
+            $this->pendingSubscriptionsCount = DB::table('subscriptions')->where('status', 'pending')->count();
+        } catch (\Exception $e) {
+            $this->pendingSubscriptionsCount = 0;
+        }
+    }
+
+    public function approveSubscription($id)
+    {
+        try {
+            DB::table('subscriptions')->where('id', $id)->update(['status' => 'active', 'updated_at' => now()]);
+            $this->loadStats();
+            session()->flash('success', 'Abonnement validé avec succès.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de la validation.');
+        }
     }
 
     public function loadChartData()
@@ -59,8 +73,19 @@ class AdminDashboard extends Component
             ->take(10)
             ->get();
 
+        try {
+            $pendingSubscriptionsList = DB::table('subscriptions')
+                ->join('users', 'subscriptions.user_id', '=', 'users.id')
+                ->select('subscriptions.*', 'users.name as user_name', 'users.email as user_email')
+                ->where('subscriptions.status', 'pending')
+                ->get();
+        } catch (\Exception $e) {
+            $pendingSubscriptionsList = collect();
+        }
+
         return view('livewire.admin-dashboard', [
-            'topShops' => $topShops
+            'topShops' => $topShops,
+            'pendingSubscriptionsList' => $pendingSubscriptionsList
         ])->layout('layouts.app');
     }
 }

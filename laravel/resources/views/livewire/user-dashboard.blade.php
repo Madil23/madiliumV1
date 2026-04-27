@@ -34,7 +34,7 @@
                                 <p class="font-bold">{{ $content['title'] ?? 'Lien' }}</p>
                                 <a href="{{ $content['url'] ?? '#' }}" class="text-sm text-blue-500" target="_blank">{{ $content['url'] ?? '' }}</a>
                             </div>
-                            <button class="text-red-500 hover:text-red-700">Supprimer</button>
+                            <button wire:click="deleteLink({{ $block->id }})" class="text-red-500 hover:text-red-700">Supprimer</button>
                         </div>
                     @empty
                         <p class="text-gray-500 text-sm">Aucun lien pour le moment.</p>

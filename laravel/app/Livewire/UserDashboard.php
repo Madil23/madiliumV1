@@ -54,6 +54,17 @@ class UserDashboard extends Component
         session()->flash('success', 'Lien ajouté avec succès !');
     }
 
+    public function deleteLink($blockId)
+    {
+        $block = $this->page->blocks()->find($blockId);
+        
+        if ($block) {
+            $block->delete();
+            $this->loadData();
+            session()->flash('success', 'Lien supprimé.');
+        }
+    }
+
     public function render()
     {
         return view('livewire.user-dashboard')->layout('layouts.app');

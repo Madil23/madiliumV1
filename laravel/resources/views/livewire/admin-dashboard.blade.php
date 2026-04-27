@@ -31,7 +31,7 @@
             </div>
             <div>
                 <h3 class="text-gray-500 text-sm font-medium">Abonnements en Attente</h3>
-                <p class="text-2xl font-bold text-gray-800">{{ $pendingSubscriptions }}</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $pendingSubscriptionsCount }}</p>
             </div>
         </div>
     </div>
@@ -98,6 +98,64 @@
                         <tr>
                             <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                 Aucune boutique E-commerce n'est actuellement active.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section Abonnements en Attente -->
+    <div class="mt-8 bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+            <h3 class="text-gray-800 font-bold">Abonnements en Attente de Validation</h3>
+        </div>
+        
+        @if(session()->has('success'))
+            <div class="px-6 py-3 bg-green-50 text-green-700 text-sm font-medium border-b border-green-100">
+                {{ session('success') }}
+            </div>
+        @endif
+        
+        @if(session()->has('error'))
+            <div class="px-6 py-3 bg-red-50 text-red-700 text-sm font-medium border-b border-red-100">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white text-gray-500 text-sm border-b border-gray-100">
+                        <th class="px-6 py-3 font-medium">Utilisateur</th>
+                        <th class="px-6 py-3 font-medium">Email</th>
+                        <th class="px-6 py-3 text-center font-medium">Date de Demande</th>
+                        <th class="px-6 py-3 text-right font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm">
+                    @forelse($pendingSubscriptionsList as $subscription)
+                        <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-medium text-gray-800">
+                                {{ $subscription->user_name }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                {{ $subscription->user_email }}
+                            </td>
+                            <td class="px-6 py-4 text-center text-gray-500">
+                                {{ \Carbon\Carbon::parse($subscription->created_at)->format('d/m/Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button wire:click="approveSubscription({{ $subscription->id }})" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition font-medium text-xs">
+                                    Valider
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                Aucun abonnement en attente.
                             </td>
                         </tr>
                     @endforelse
